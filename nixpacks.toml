@@ -1,8 +1,10 @@
+# nixpacks.toml
 [phases.setup]
 nixPkgs = [
-  "php85",
-  "php85Extensions.pdo_mysql"
+  "php85",               # PHP 8.5
+  "php85Extensions.pdo_mysql"  # ekstensi PDO MySQL
 ]
 
 [start]
+# Start PHP built-in server, -t /app artinya root folder project
 cmd = "php -S 0.0.0.0:$PORT -t /app"
