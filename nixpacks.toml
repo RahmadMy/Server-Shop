@@ -1,8 +1,12 @@
 [phases.setup]
 nixPkgs = [
-  "php82",
-  "php82Extensions.pdo_mysql"
+  "php85"                     # PHP 8.5
+  "php85Extensions.pdo_mysql" # PDO MySQL untuk PHP 8.5
 ]
+
+shell = ''
+  echo "extension=pdo_mysql.so" > $PHP_INI_DIR/conf.d/pdo_mysql.ini
+''
 
 [start]
 cmd = "php -S 0.0.0.0:$PORT"
