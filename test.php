@@ -1,10 +1,12 @@
 <?php
-if (function_exists('mysqli_connect')) {
-    echo "MySQLi aktif ✅";
+if (defined('PDO::ATTR_DRIVER_NAME')) {
+    $drivers = PDO::getAvailableDrivers();
+    if (in_array('mysql', $drivers)) {
+        echo "PDO MySQL aktif ✅";
+    } else {
+        echo "PDO aktif tapi MySQL driver tidak ditemukan ❌";
+    }
 } else {
-    echo "MySQLi tidak aktif ❌";
+    echo "PDO tidak aktif ❌";
 }
-
-// Opsional: info PHP lengkap
-phpinfo();
 ?>
