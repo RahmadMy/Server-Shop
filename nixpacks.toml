@@ -1,12 +1,13 @@
 [phases.setup]
 nixPkgs = [
-  "php85"                     # PHP 8.5
-  "php85Extensions.mysqli"    # ekstensi MySQLi
+  "php85"
+  "php85Extensions.mysqli"
 ]
 
 shell = ''
+  # Aktifkan mysqli secara eksplisit
   echo "extension=mysqli.so" > $PHP_INI_DIR/conf.d/mysqli.ini
 ''
 
 [start]
-cmd = "php -S 0.0.0.0:$PORT"
+cmd = "php -S 0.0.0.0:$PORT -t /app"
