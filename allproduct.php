@@ -9,28 +9,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-include "dbconnect.php";
+include "dbconnect.php"; // dbconnect.php harus membuat $pdo, bukan $conn
 
-$query = "SELECT id, name, price, description, promo, images, category, vendors, stock FROM product_items";
-$result = mysqli_query($conn, $query);
+try {
+    $stmt = $pdo->query("SELECT id, name, price, description, promo, images, category, vendors, stock FROM product_items");
+    $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-if (!$result) {
+    echo json_encode([
+        "status" => true,
+        "data" => $products
+    ]);
+
+} catch (PDOException $e) {
     http_response_code(500);
     echo json_encode([
         "status" => false,
         "message" => "Query gagal",
-        "error" => mysqli_error($conn)
+        "error" => $e->getMessage()
     ]);
-    exit;
 }
-
-$products = [];
-
-while ($row = mysqli_fetch_assoc($result)) {
-    $products[] = $row;
-}
-
-echo json_encode([
-    "status" => true,
-    "data" => $products
-]);
