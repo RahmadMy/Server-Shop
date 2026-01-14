@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+// Include koneksi PDO
 include "dbconnect.php";
 
 // Ambil data JSON dari Flutter / Postman
@@ -27,37 +28,45 @@ if (empty($name) || empty($email) || empty($password)) {
     exit;
 }
 
-// Cek email sudah terdaftar atau belum
-$checkQuery = "SELECT id FROM users WHERE email = ?";
-$checkStmt = $conn->prepare($checkQuery);
-$checkStmt->bind_param("s", $email);
-$checkStmt->execute();
-$checkResult = $checkStmt->get_result();
+try {
+    // Cek email sudah terdaftar atau belum
+    $checkStmt = $pdo->prepare("SELECT id FROM users WHERE email = :email");
+    $checkStmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $checkStmt->execute();
 
-if ($checkResult->num_rows > 0) {
+    if ($checkStmt->rowCount() > 0) {
+        echo json_encode([
+            "status" => false,
+            "message" => "Email sudah terdaftar"
+        ]);
+        exit;
+    }
+
+    // Hash password
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+    // Simpan ke database
+    $insertStmt = $pdo->prepare("INSERT INTO users (name, email, password) VALUES (:name, :email, :password)");
+    $insertStmt->bindParam(':name', $name, PDO::PARAM_STR);
+    $insertStmt->bindParam(':email', $email, PDO::PARAM_STR);
+    $insertStmt->bindParam(':password', $hashedPassword, PDO::PARAM_STR);
+
+    if ($insertStmt->execute()) {
+        echo json_encode([
+            "status" => true,
+            "message" => "Registrasi berhasil"
+        ]);
+    } else {
+        echo json_encode([
+            "status" => false,
+            "message" => "Registrasi gagal"
+        ]);
+    }
+} catch (PDOException $e) {
+    http_response_code(500);
     echo json_encode([
         "status" => false,
-        "message" => "Email sudah terdaftar"
-    ]);
-    exit;
-}
-
-// Hash password
-$hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-
-// Simpan ke database
-$query = "INSERT INTO users (name, email, password) VALUES (?, ?, ?)";
-$stmt = $conn->prepare($query);
-$stmt->bind_param("sss", $name, $email, $hashedPassword);
-
-if ($stmt->execute()) {
-    echo json_encode([
-        "status" => true,
-        "message" => "Registrasi berhasil"
-    ]);
-} else {
-    echo json_encode([
-        "status" => false,
-        "message" => "Registrasi gagal"
+        "message" => "Terjadi kesalahan server",
+        "error" => $e->getMessage()
     ]);
 }
