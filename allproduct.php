@@ -9,9 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
-include "dbconnect.php"; // dbconnect.php harus membuat $pdo, bukan $conn
+// Include dbconnect.php → pastikan $pdo tersedia
+include "dbconnect.php";
 
 try {
+    // Query dengan PDO
     $stmt = $pdo->query("SELECT id, name, price, description, promo, images, category, vendors, stock FROM product_items");
     $products = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
