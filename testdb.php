@@ -1,26 +1,26 @@
 <?php
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
 header("Content-Type: application/json");
 
-$conn = mysqli_connect(
-  getenv("MYSQLHOST"),
-  getenv("MYSQLUSER"),
-  getenv("MYSQLPASSWORD"),
-  getenv("MYSQLDATABASE"),
-  getenv("MYSQLPORT")
-);
+try {
+    $pdo = new PDO(
+        "mysql:host=" . getenv("MYSQLHOST") .
+        ";dbname=" . getenv("MYSQLDATABASE") .
+        ";port=" . getenv("MYSQLPORT") .
+        ";charset=utf8mb4",
+        getenv("MYSQLUSER"),
+        getenv("MYSQLPASSWORD"),
+        [
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ]
+    );
 
-if (!$conn) {
-  http_response_code(500);
-  echo json_encode([
-    "status" => false,
-    "error" => mysqli_connect_error(),
-    "host" => getenv("MYSQLHOST"),
-    "db" => getenv("MYSQLDATABASE")
-  ]);
-  exit;
+    echo json_encode([
+        "status" => "PDO CONNECTED"
+    ]);
+} catch (PDOException $e) {
+    http_response_code(500);
+    echo json_encode([
+        "status" => "ERROR",
+        "message" => $e->getMessage()
+    ]);
 }
-
-echo json_encode(["status" => "DB CONNECTED"]);
