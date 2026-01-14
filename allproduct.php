@@ -11,15 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include "dbconnect.php";
 
-header("Content-Type: application/json");
-
 $query = "SELECT id, name, price, description, promo, images, category, vendors, stock FROM product_items";
 $result = mysqli_query($conn, $query);
 
 if (!$result) {
+    http_response_code(500);
     echo json_encode([
         "status" => false,
-        "message" => "Query gagal"
+        "message" => "Query gagal",
+        "error" => mysqli_error($conn)
     ]);
     exit;
 }
@@ -34,4 +34,3 @@ echo json_encode([
     "status" => true,
     "data" => $products
 ]);
-?>
